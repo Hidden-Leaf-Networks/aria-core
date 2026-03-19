@@ -1,0 +1,68 @@
+[project]
+name = "aria-core"
+version = "0.1.0"
+description = "Deterministic AI agent framework with multi-model orchestration, FSM execution, and permission-first safety."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Hidden Leaf Networks", email = "contact@hiddenleafnetworks.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+keywords = ["ai", "agents", "llm", "orchestration", "multi-model", "fsm", "deterministic"]
+
+dependencies = [
+    "pydantic>=2.5.0",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.10.0"]
+anthropic = ["anthropic>=0.18.0"]
+xai = ["openai>=1.10.0"]  # xAI uses OpenAI-compatible API
+all-providers = ["aria-core[openai,anthropic,xai]"]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.14",
+    "mypy>=1.8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Hidden-Leaf-Networks/aria-core"
+Documentation = "https://github.com/Hidden-Leaf-Networks/aria-core/tree/main/docs"
+Repository = "https://github.com/Hidden-Leaf-Networks/aria-core"
+Issues = "https://github.com/Hidden-Leaf-Networks/aria-core/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aria_core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
