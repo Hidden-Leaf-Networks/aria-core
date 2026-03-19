@@ -48,6 +48,15 @@ from aria_core.permissions.models import (
 # Planning
 from aria_core.planning.plan_engine import PlanEngine
 
+# Adapters
+from aria_core.adapters import (
+    AnthropicAdapter,
+    ModelAdapter,
+    OpenAIAdapter,
+    OpenAIAdapterStub,
+    XAIAdapter,
+)
+
 __all__ = [
     # Runtime
     "AgentConfig",
@@ -74,4 +83,10 @@ __all__ = [
     "SkillCategory",
     # Planning
     "PlanEngine",
+    # Adapters
+    "AnthropicAdapter",
+    "ModelAdapter",
+    "OpenAIAdapter",
+    "OpenAIAdapterStub",
+    "XAIAdapter",
 ]

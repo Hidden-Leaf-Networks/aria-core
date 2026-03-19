@@ -4,7 +4,7 @@
 
 Built by [Hidden Leaf Networks](https://hiddenleafnetworks.com).
 
-> Aria Core is the open-source foundation extracted from [Aria.ai](https://aria.ai) — a production agent system running 4 autonomous agents across DevRel, research, trading, and content domains.
+> Aria Core is the open-source foundation extracted from [Aria](https://hiddenleafnetworks.com/portfolio) — a production agent system running 4 autonomous agents across DevRel, research, trading, and content domains.
 
 ---
 
