@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --hud-accent: #00ffaa;
+  --hud-accent2: #a855f7;
+  --hud-accent3: #00d4ff;
+  --hud-bg-darkest: #070a0f;
+  --hud-bg-dark: #0b1220;
+  --hud-bg-medium: #101a2e;
+  --hud-bg-light: #1a2540;
+  --hud-border: rgba(255, 255, 255, 0.06);
+  --hud-border-active: rgba(0, 255, 170, 0.3);
+  --hud-glass: rgba(16, 26, 46, 0.7);
+}
+
+/* Glass panel */
+.hud-panel {
+  @apply rounded-lg border border-white/[0.06] p-4;
+  background: var(--hud-glass);
+  backdrop-filter: blur(12px);
+}
+
+.hud-panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.hud-panel--selected {
+  border-color: var(--hud-border-active);
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.08);
+}
+
+/* Buttons */
+.hud-btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200;
+}
+
+.hud-btn--primary {
+  @apply bg-hud-primary text-white;
+}
+
+.hud-btn--primary:hover {
+  @apply bg-hud-primary-light;
+  box-shadow: 0 0 20px rgba(0, 191, 165, 0.3);
+}
+
+.hud-btn--secondary {
+  @apply border border-white/10 bg-white/5 text-white/80;
+}
+
+.hud-btn--secondary:hover {
+  @apply bg-white/10 text-white;
+}
+
+.hud-btn--ghost {
+  @apply bg-transparent text-white/60;
+}
+
+.hud-btn--ghost:hover {
+  @apply bg-white/5 text-white/80;
+}
+
+.hud-btn--danger {
+  @apply bg-hud-error/20 text-hud-error;
+}
+
+.hud-btn--danger:hover {
+  @apply bg-hud-error/30;
+}
+
+/* Status pills */
+.hud-pill {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.hud-pill--active {
+  @apply bg-hud-success/20 text-hud-success;
+}
+
+.hud-pill--inactive {
+  @apply bg-white/10 text-white/50;
+}
+
+.hud-pill--warning {
+  @apply bg-hud-warning/20 text-hud-warning;
+}
+
+.hud-pill--error {
+  @apply bg-hud-error/20 text-hud-error;
+}
+
+.hud-pill--info {
+  @apply bg-hud-info/20 text-hud-info;
+}
+
+/* Nav items */
+.hud-nav-item {
+  @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/60 transition-all duration-200;
+}
+
+.hud-nav-item:hover {
+  @apply bg-white/5 text-white/80;
+}
+
+.hud-nav-item--active {
+  @apply bg-white/10 text-white;
+  border-left: 2px solid var(--hud-accent);
+}
+
+/* Inputs */
+.hud-input {
+  @apply w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition-all duration-200;
+}
+
+.hud-input:focus {
+  @apply border-hud-primary/50 bg-white/[0.07];
+  box-shadow: 0 0 0 2px rgba(0, 191, 165, 0.1);
+}
+
+/* Select */
+.hud-select {
+  @apply hud-input appearance-none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  padding-right: 2rem;
+}
+
+/* Toggle */
+.hud-toggle {
+  @apply relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-white/20 transition-colors duration-200;
+}
+
+.hud-toggle[data-state="checked"] {
+  @apply bg-hud-primary;
+}
+
+.hud-toggle-thumb {
+  @apply pointer-events-none block h-4 w-4 translate-x-0 rounded-full bg-white shadow-lg transition-transform duration-200;
+}
+
+.hud-toggle[data-state="checked"] .hud-toggle-thumb {
+  @apply translate-x-4;
+}
+
+/* Scrollbar */
+.hud-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hud-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hud-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.hud-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Metrics */
+.hud-metric {
+  @apply flex flex-col gap-0.5;
+}
+
+.hud-metric-label {
+  @apply text-xs text-white/50 uppercase tracking-wider;
+}
+
+.hud-metric-value {
+  @apply text-xl font-semibold tabular-nums;
+}
+
+/* Skeleton loading */
+.hud-skeleton {
+  @apply animate-pulse rounded bg-white/10;
+}
+
+/* Table */
+.hud-table {
+  @apply w-full text-sm;
+}
+
+.hud-table th {
+  @apply px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-white/40 border-b border-white/5;
+}
+
+.hud-table td {
+  @apply px-4 py-3 border-b border-white/5;
+}
+
+.hud-table tr:hover td {
+  @apply bg-white/[0.02];
+}
