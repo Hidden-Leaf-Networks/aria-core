@@ -28,6 +28,7 @@ from aria_core.api.config import APIConfig
 from aria_core.api.deps import get_guard, get_resolver, set_provider
 from aria_core.api.middleware import create_auth_dependency
 from aria_core.api.schemas import CreatePlanRequest, CreateTenantRequest, UpdateTenantConfigRequest
+from aria_core.api.security import SECURITY_HEADERS, RateLimiter
 from aria_core.api.ws import WebSocketManager
 from aria_core.persistence.memory import InMemoryProvider
 from aria_core.tenant.models import DEFAULT_TENANT
@@ -74,6 +75,26 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Security: rate limiter
+    rate_limiter = RateLimiter(
+        requests_per_minute=int(config.cors_origins[0] == "*" and 120 or 60),
+    )
+    app.state.rate_limiter = rate_limiter
+
+    # Security: response headers middleware
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.requests import Request as StarletteRequest
+    from starlette.responses import Response as StarletteResponse
+
+    class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: StarletteRequest, call_next: Any) -> StarletteResponse:
+            response = await call_next(request)
+            for key, value in SECURITY_HEADERS.items():
+                response.headers[key] = value
+            return response
+
+    app.add_middleware(SecurityHeadersMiddleware)
 
     # Auth dependency
     _get_current_user = create_auth_dependency(config)

@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------
+  # Aria Core API
+  # ---------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "${ARIA_PORT:-8000}:8000"
+    environment:
+      ARIA_PERSISTENCE: postgres
+      ARIA_DATABASE_URL: postgresql+asyncpg://aria:${POSTGRES_PASSWORD:-aria}@postgres:5432/aria_core
+      ARIA_JWT_SECRET: ${ARIA_JWT_SECRET:?Set ARIA_JWT_SECRET}
+      ARIA_JWT_ALGORITHM: ${ARIA_JWT_ALGORITHM:-HS256}
+      ARIA_JWT_ISSUER: ${ARIA_JWT_ISSUER:-aria-core}
+      ARIA_JWT_AUDIENCE: ${ARIA_JWT_AUDIENCE:-aria-core-api}
+      ARIA_CORS_ORIGINS: ${ARIA_CORS_ORIGINS:-*}
+      ARIA_DEBUG: ${ARIA_DEBUG:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ---------------------------------------------------------------
+  # PostgreSQL 16
+  # ---------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: aria_core
+      POSTGRES_USER: aria
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aria}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aria -d aria_core"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ---------------------------------------------------------------
+  # Database migrations (run once)
+  # ---------------------------------------------------------------
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment:
+      ARIA_DATABASE_URL: postgresql+asyncpg://aria:${POSTGRES_PASSWORD:-aria}@postgres:5432/aria_core
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  pgdata:
