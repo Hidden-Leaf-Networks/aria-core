@@ -235,6 +235,7 @@ class AgentStateMachine:
         self,
         message: str,
         conversation_id: UUID | None = None,
+        tenant_id: UUID | None = None,
         config: AgentConfig | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> AgentResult:
@@ -243,12 +244,15 @@ class AgentStateMachine:
         Convenience method that creates context and runs the machine.
         """
         config = config or self.config
-        context = AgentContext(
-            conversation_id=conversation_id or uuid4(),
-            config=config,
-            messages=[ChatMessage(role=MessageRole.USER, content=message)],
-            metadata=metadata or {},
-        )
+        ctx_kwargs: dict[str, Any] = {
+            "conversation_id": conversation_id or uuid4(),
+            "config": config,
+            "messages": [ChatMessage(role=MessageRole.USER, content=message)],
+            "metadata": metadata or {},
+        }
+        if tenant_id is not None:
+            ctx_kwargs["tenant_id"] = tenant_id
+        context = AgentContext(**ctx_kwargs)
         return await self.run(context)
 
     def reset(self) -> None:

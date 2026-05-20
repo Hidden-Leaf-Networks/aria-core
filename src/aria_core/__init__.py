@@ -12,7 +12,20 @@ Built by Hidden Leaf Networks.
 https://github.com/Hidden-Leaf-Networks/aria-core
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
+
+# Tenant
+from aria_core.tenant.models import (
+    DEFAULT_TENANT,
+    DEFAULT_TENANT_CONTEXT,
+    DEFAULT_TENANT_ID,
+    Tenant,
+    TenantConfig,
+    TenantContext,
+)
+
+# Persistence
+from aria_core.persistence import InMemoryProvider, PersistenceProvider
 
 # Runtime
 from aria_core.runtime.models import (
@@ -58,6 +71,16 @@ from aria_core.adapters import (
 )
 
 __all__ = [
+    # Tenant
+    "DEFAULT_TENANT",
+    "DEFAULT_TENANT_CONTEXT",
+    "DEFAULT_TENANT_ID",
+    "Tenant",
+    "TenantConfig",
+    "TenantContext",
+    # Persistence
+    "InMemoryProvider",
+    "PersistenceProvider",
     # Runtime
     "AgentConfig",
     "AgentContext",

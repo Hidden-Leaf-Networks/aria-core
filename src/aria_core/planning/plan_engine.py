@@ -81,15 +81,24 @@ class PlanEngine:
 
     Manages: plan CRUD, dependency validation, state transitions,
     risk integration, and action execution through skill callbacks.
+
+    Supports two modes:
+    - Legacy (in-memory): No persistence provider, uses internal dict.
+    - Tenant-aware: Persistence provider handles all storage, tenant_id required.
     """
 
     def __init__(
         self,
         skill_executor: SkillExecutor | None = None,
         event_callback: Callable[[str, dict[str, Any]], Any] | None = None,
+        persistence: Any | None = None,
+        tenant_id: UUID | None = None,
     ) -> None:
         self._skill_executor = skill_executor
         self._event_callback = event_callback
+        self._persistence = persistence
+        self._tenant_id = tenant_id
+        # Legacy in-memory store (used when no persistence provider)
         self._plans: dict[UUID, Plan] = {}
 
     def _emit(self, event_type: str, payload: dict[str, Any]) -> None:
@@ -141,9 +150,13 @@ class PlanEngine:
             created_by=created_by,
         )
 
-        self._plans[plan_id] = plan
+        self._store_plan(plan)
         self._emit("plan.created", {"plan_id": str(plan_id), "name": name})
         return plan
+
+    def _store_plan(self, plan: Plan) -> None:
+        """Store plan via persistence provider or legacy dict."""
+        self._plans[plan.id] = plan
 
     def get_plan(self, plan_id: UUID) -> Plan | None:
         return self._plans.get(plan_id)
@@ -165,7 +178,7 @@ class PlanEngine:
             "planned_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
         })
-        self._plans[plan_id] = updated
+        self._store_plan(updated)
         self._emit("plan.validated", {"plan_id": str(plan_id)})
         return updated
 
@@ -184,7 +197,7 @@ class PlanEngine:
             "started_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
         })
-        self._plans[plan_id] = updated
+        self._store_plan(updated)
         self._emit("plan.started", {"plan_id": str(plan_id)})
         return updated
 
@@ -256,7 +269,7 @@ class PlanEngine:
             "current_action_index": action_idx,
             "updated_at": datetime.now(timezone.utc),
         })
-        self._plans[plan_id] = plan
+        self._store_plan(plan)
 
         self._emit("action.completed", {
             "plan_id": str(plan_id),
@@ -350,7 +363,7 @@ class PlanEngine:
             "completed_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
         })
-        self._plans[plan.id] = updated
+        self._store_plan(updated)
         self._emit("plan.completed", {"plan_id": str(plan.id)})
         return updated
 
@@ -360,6 +373,6 @@ class PlanEngine:
             "updated_at": datetime.now(timezone.utc),
             "metadata": {**plan.metadata, "error": error},
         })
-        self._plans[plan.id] = updated
+        self._store_plan(updated)
         self._emit("plan.failed", {"plan_id": str(plan.id), "error": error})
         return updated

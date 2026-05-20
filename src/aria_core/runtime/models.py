@@ -89,6 +89,10 @@ class AgentContext(BaseModel):
     """Agent execution context — passed through the state machine."""
 
     id: UUID = Field(default_factory=uuid4)
+    tenant_id: UUID = Field(
+        default=UUID("00000000-0000-0000-0000-000000000000"),
+        description="Tenant this execution belongs to. Defaults to the single-tenant default.",
+    )
     conversation_id: UUID = Field(default_factory=uuid4)
     config: AgentConfig = Field(default_factory=AgentConfig)
     messages: list[ChatMessage] = Field(default_factory=list)

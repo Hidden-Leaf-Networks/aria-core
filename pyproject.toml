@@ -30,6 +30,12 @@ openai = ["openai>=1.10.0"]
 anthropic = ["anthropic>=0.18.0"]
 xai = ["openai>=1.10.0"]  # xAI uses OpenAI-compatible API
 all-providers = ["aria-core[openai,anthropic,xai]"]
+postgres = [
+    "sqlalchemy[asyncio]>=2.0.25",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.0",
+]
+all = ["aria-core[all-providers,postgres]"]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
