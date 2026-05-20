@@ -1,0 +1,14 @@
+apiVersion: v2
+name: aria-core
+description: Multi-tenant AI agent framework — white-label deployment
+type: application
+version: 0.3.0
+appVersion: "0.3.0"
+keywords:
+  - ai
+  - agents
+  - multi-tenant
+  - white-label
+maintainers:
+  - name: Hidden Leaf Networks
+    email: contact@hiddenleafnetworks.com

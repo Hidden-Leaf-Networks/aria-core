@@ -29,6 +29,7 @@ from aria_core.api.deps import get_guard, get_resolver, set_provider
 from aria_core.api.middleware import create_auth_dependency
 from aria_core.api.schemas import CreatePlanRequest, CreateTenantRequest, UpdateTenantConfigRequest
 from aria_core.api.security import SECURITY_HEADERS, RateLimiter
+from aria_core.billing.meter import UsageMeter
 from aria_core.api.ws import WebSocketManager
 from aria_core.persistence.memory import InMemoryProvider
 from aria_core.tenant.models import DEFAULT_TENANT
@@ -95,6 +96,10 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
             return response
 
     app.add_middleware(SecurityHeadersMiddleware)
+
+    # Billing: usage meter
+    usage_meter = UsageMeter()
+    app.state.usage_meter = usage_meter
 
     # Auth dependency
     _get_current_user = create_auth_dependency(config)
@@ -368,5 +373,41 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
             "tenant_connections": ws_manager.connection_count(user.tenant_id),
             "total_connections": ws_manager.connection_count(),
         }
+
+    # -----------------------------------------------------------------------
+    # JWKS endpoint (public — no auth)
+    # -----------------------------------------------------------------------
+
+    @app.get("/.well-known/jwks.json")
+    async def jwks_endpoint() -> dict:
+        """Public JWKS endpoint for RS256 token verification."""
+        try:
+            from aria_core.api.jwks import KeyManager
+            km = getattr(app.state, "key_manager", None)
+            if km:
+                return km.get_jwks()
+        except ImportError:
+            pass
+        return {"keys": []}
+
+    # -----------------------------------------------------------------------
+    # Billing
+    # -----------------------------------------------------------------------
+
+    @app.get("/api/v1/billing/usage")
+    async def usage_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        """Get usage report for the authenticated tenant."""
+        from aria_core.api.routes.billing import get_usage
+        return await get_usage(user, usage_meter)
+
+    @app.get("/api/v1/billing/usage/all")
+    async def all_usage_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> list:
+        """Get usage reports for all tenants. Admin only."""
+        from aria_core.api.routes.billing import get_all_usage
+        return await get_all_usage(user, usage_meter)
 
     return app

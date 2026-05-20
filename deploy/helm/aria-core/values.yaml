@@ -1,0 +1,149 @@
+# Aria Core Helm Chart — Default Values
+# Override per-environment via values-prod.yaml, values-staging.yaml, etc.
+
+# ---------------------------------------------------------------
+# API Deployment
+# ---------------------------------------------------------------
+api:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/hidden-leaf-networks/aria-core
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
+  port: 8000
+  workers: 4
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  env:
+    ARIA_PERSISTENCE: postgres
+    ARIA_JWT_ALGORITHM: RS256
+    ARIA_JWT_ISSUER: aria-core
+    ARIA_JWT_AUDIENCE: aria-core-api
+    ARIA_CORS_ORIGINS: "*"
+    ARIA_DEBUG: "false"
+
+  # Reference to existing secrets
+  secretRef: aria-core-secrets
+
+# ---------------------------------------------------------------
+# Portal (Config UI)
+# ---------------------------------------------------------------
+portal:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/hidden-leaf-networks/aria-core-portal
+    tag: "0.3.0"
+    pullPolicy: IfNotPresent
+  port: 3000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+# ---------------------------------------------------------------
+# PostgreSQL
+# ---------------------------------------------------------------
+postgresql:
+  enabled: true
+  auth:
+    database: aria_core
+    username: aria
+    existingSecret: aria-core-secrets
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: postgres-password
+  primary:
+    persistence:
+      size: 10Gi
+      storageClass: ""
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+# ---------------------------------------------------------------
+# Ingress
+# ---------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/rate-limit: "60"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/websocket-services: aria-core-api
+  hosts:
+    - host: aria.example.com
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /ws
+          pathType: Prefix
+          service: api
+        - path: /health
+          pathType: Exact
+          service: api
+        - path: /ready
+          pathType: Exact
+          service: api
+        - path: /
+          pathType: Prefix
+          service: portal
+  tls:
+    - secretName: aria-core-tls
+      hosts:
+        - aria.example.com
+
+# ---------------------------------------------------------------
+# Migrations (Job)
+# ---------------------------------------------------------------
+migrations:
+  enabled: true
+  backoffLimit: 3
+
+# ---------------------------------------------------------------
+# Service Account
+# ---------------------------------------------------------------
+serviceAccount:
+  create: true
+  name: aria-core
+
+# ---------------------------------------------------------------
+# Pod Security
+# ---------------------------------------------------------------
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aria-core.fullname" . }}-api
+  labels:
+    {{- include "aria-core.labels" . | nindent 4 }}
+    {{- include "aria-core.api.selectorLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.api.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "aria-core.api.selectorLabels" . | nindent 4 }}
