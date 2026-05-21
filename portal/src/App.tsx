@@ -8,6 +8,7 @@ import { ApprovalsPage } from "@/pages/ApprovalsPage";
 import { EventsPage } from "@/pages/EventsPage";
 import { ContextsPage } from "@/pages/ContextsPage";
 import { AgentsPage } from "@/pages/AgentsPage";
+import { WorkflowEditorPage } from "@/pages/WorkflowEditorPage";
 import { LoginPage } from "@/pages/LoginPage";
 
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ function AppLayout() {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/contexts" element={<ContextsPage />} />
         <Route path="/agents" element={<AgentsPage />} />
+        <Route path="/workflow" element={<WorkflowEditorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HudShell>

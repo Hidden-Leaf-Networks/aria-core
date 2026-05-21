@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/events", label: "Events", icon: "◉" },
   { to: "/contexts", label: "Contexts", icon: "◫" },
   { to: "/agents", label: "Agents", icon: "⬢" },
+  { to: "/workflow", label: "Workflow", icon: "◈" },
 ];
 
 export function HudNav() {
