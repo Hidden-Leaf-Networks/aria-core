@@ -292,6 +292,57 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
         return await delete_agent(agent_id, user)
 
     # -----------------------------------------------------------------------
+    # Providers
+    # -----------------------------------------------------------------------
+
+    @app.get("/api/v1/providers")
+    async def list_providers_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> list:
+        from aria_core.api.routes.providers import list_providers
+        return await list_providers(user)
+
+    @app.post("/api/v1/providers")
+    async def configure_provider_endpoint(
+        body: dict,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.providers import configure_provider
+        return await configure_provider(body, user)
+
+    @app.delete("/api/v1/providers/{provider}")
+    async def remove_provider_endpoint(
+        provider: str,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.providers import remove_provider
+        return await remove_provider(provider, user)
+
+    @app.get("/api/v1/providers/models")
+    async def list_models_endpoint(
+        user: AuthUser = Depends(get_current_user),
+        provider: Optional[str] = Query(None),
+        available_only: bool = Query(False),
+    ) -> list:
+        from aria_core.api.routes.providers import list_models
+        return await list_models(user, provider=provider, available_only=available_only)
+
+    @app.get("/api/v1/providers/status")
+    async def provider_status_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.providers import get_provider_status
+        return await get_provider_status(user)
+
+    @app.post("/api/v1/providers/{provider}/test")
+    async def test_provider_endpoint(
+        provider: str,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.providers import test_provider
+        return await test_provider(provider, user)
+
+    # -----------------------------------------------------------------------
     # Archetypes
     # -----------------------------------------------------------------------
 
