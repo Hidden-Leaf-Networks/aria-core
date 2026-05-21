@@ -12,7 +12,7 @@ Built by Hidden Leaf Networks.
 https://github.com/Hidden-Leaf-Networks/aria-core
 """
 
-__version__ = "3.0.0-alpha.1"
+__version__ = "3.0.0"
 
 # Tenant
 from aria_core.tenant.models import (
