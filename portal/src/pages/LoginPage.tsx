@@ -40,16 +40,14 @@ export function LoginPage() {
       <div className="w-full max-w-sm relative z-10">
         {/* Logo with glow */}
         <div className="flex flex-col items-center gap-4 mb-10">
-          <div
-            className="h-16 w-16 rounded-2xl flex items-center justify-center text-2xl font-bold"
+          <img
+            src="/aria-icon.png"
+            alt="Aria Core"
+            className="h-20 w-20 rounded-2xl object-cover"
             style={{
-              background: "linear-gradient(135deg, #00FFAA 0%, #00D4FF 50%, #A855F7 100%)",
-              color: "#050510",
               boxShadow: "0 0 40px rgba(0, 255, 170, 0.4), 0 0 80px rgba(0, 255, 170, 0.15), 0 8px 32px rgba(0,0,0,0.4)",
             }}
-          >
-            A
-          </div>
+          />
           <div className="text-center">
             <div
               className="text-2xl font-semibold tracking-wide"
