@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: "/contexts", label: "Contexts", icon: "◫" },
   { to: "/agents", label: "Agents", icon: "⬢" },
   { to: "/workflow", label: "Workflow", icon: "◈" },
+  { to: "/marketplace", label: "Marketplace", icon: "◎" },
 ];
 
 export function HudNav() {

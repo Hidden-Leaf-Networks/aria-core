@@ -9,6 +9,7 @@ import { EventsPage } from "@/pages/EventsPage";
 import { ContextsPage } from "@/pages/ContextsPage";
 import { AgentsPage } from "@/pages/AgentsPage";
 import { WorkflowEditorPage } from "@/pages/WorkflowEditorPage";
+import { MarketplacePage } from "@/pages/MarketplacePage";
 import { LoginPage } from "@/pages/LoginPage";
 
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,7 @@ function AppLayout() {
         <Route path="/contexts" element={<ContextsPage />} />
         <Route path="/agents" element={<AgentsPage />} />
         <Route path="/workflow" element={<WorkflowEditorPage />} />
+        <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HudShell>
