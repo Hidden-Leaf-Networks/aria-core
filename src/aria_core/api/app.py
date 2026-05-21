@@ -42,6 +42,8 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         """Startup/shutdown lifecycle."""
+        from aria_core.api.seed import seed_demo_data
+
         if config.use_postgres:
             from aria_core.persistence.postgres import (
                 PostgresProvider,
@@ -53,12 +55,14 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
             session_factory = create_session_factory(pg_engine)
             provider = PostgresProvider(session_factory)
             set_provider(provider)
+            await seed_demo_data(provider)
             yield
             await pg_engine.dispose()
         else:
             provider = InMemoryProvider()
             await provider.save_tenant(DEFAULT_TENANT)
             set_provider(provider)
+            await seed_demo_data(provider)
             yield
 
     app = FastAPI(
@@ -83,13 +87,60 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
     )
     app.state.rate_limiter = rate_limiter
 
-    # Security: response headers middleware
+    # Security: response headers + rate limiting middleware
     from starlette.middleware.base import BaseHTTPMiddleware
     from starlette.requests import Request as StarletteRequest
     from starlette.responses import Response as StarletteResponse
 
+    # Paths exempt from rate limiting (public endpoints)
+    _RATE_LIMIT_SKIP_PREFIXES = ("/health", "/ready", "/.well-known/")
+
     class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         async def dispatch(self, request: StarletteRequest, call_next: Any) -> StarletteResponse:
+            # --- Rate limiting for /api/* routes ---
+            path = request.url.path
+            skip_rate_limit = not path.startswith("/api/") or any(
+                path.startswith(p) for p in _RATE_LIMIT_SKIP_PREFIXES
+            )
+
+            if not skip_rate_limit:
+                auth_header = request.headers.get("authorization", "")
+                tenant_id = None
+
+                if auth_header.lower().startswith("bearer ") and config.jwt_secret:
+                    token_str = auth_header[7:]
+                    try:
+                        from aria_core.api.auth import decode_token, extract_user
+                        claims = decode_token(
+                            token_str,
+                            secret=config.jwt_secret,
+                            algorithm=config.jwt_algorithm,
+                        )
+                        user = extract_user(claims)
+                        tenant_id = user.tenant_id
+                    except Exception:
+                        # Auth failures are handled downstream by the route deps;
+                        # skip rate limiting if we can't extract a tenant.
+                        pass
+
+                if tenant_id is not None:
+                    allowed, rl_headers = rate_limiter.check(tenant_id)
+                    if not allowed:
+                        return JSONResponse(
+                            status_code=429,
+                            content={"error": "Rate limit exceeded"},
+                            headers={**rl_headers, **SECURITY_HEADERS},
+                        )
+
+                    # Allowed — attach headers after the response is built
+                    response = await call_next(request)
+                    for key, value in SECURITY_HEADERS.items():
+                        response.headers[key] = value
+                    for key, value in rl_headers.items():
+                        response.headers[key] = value
+                    return response
+
+            # Non-rate-limited path — just add security headers
             response = await call_next(request)
             for key, value in SECURITY_HEADERS.items():
                 response.headers[key] = value
