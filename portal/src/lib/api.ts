@@ -11,7 +11,8 @@ export function setToken(token: string) {
 }
 
 export function getToken(): string | null {
-  return _token;
+  // Always check localStorage as fallback (survives HMR)
+  return _token || localStorage.getItem("aria_token");
 }
 
 async function request<T>(
@@ -23,8 +24,9 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  if (_token) {
-    headers["Authorization"] = `Bearer ${_token}`;
+  const token = getToken()?.replace(/\s+/g, "");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -34,7 +36,9 @@ async function request<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, body.error || body.detail || res.statusText);
+    const msg = body.error || body.detail || res.statusText;
+    console.error(`[aria-api] ${res.status} ${path}: ${msg}`);
+    throw new ApiError(res.status, msg);
   }
 
   return res.json();
@@ -146,6 +150,10 @@ export const approvals = {
     return request<Approval[]>(`/approvals${q ? `?${q}` : ""}`);
   },
   get: (id: string) => request<Approval>(`/approvals/${id}`),
+  approve: (id: string) =>
+    request<Approval>(`/approvals/${id}/approve`, { method: "POST" }),
+  reject: (id: string) =>
+    request<Approval>(`/approvals/${id}/reject`, { method: "POST" }),
 };
 
 // --- Events ---
@@ -201,6 +209,34 @@ export const contexts = {
     return request<AgentContext[]>(`/contexts${q ? `?${q}` : ""}`);
   },
   get: (id: string) => request<AgentContext>(`/contexts/${id}`),
+};
+
+// --- Agents ---
+
+export interface Agent {
+  id: string;
+  tenant_id: string;
+  name: string;
+  slug: string;
+  description: string;
+  model: string;
+  system_prompt?: string;
+  allowed_skills: string[];
+  max_steps: number;
+  temperature: number;
+  status: string;
+  executions: number;
+  created_at: string;
+  created_by: string;
+}
+
+export const agents = {
+  list: () => request<Agent[]>("/agents"),
+  get: (id: string) => request<Agent>(`/agents/${id}`),
+  register: (data: Partial<Agent>) =>
+    request<Agent>("/agents", { method: "POST", body: JSON.stringify(data) }),
+  delete: (id: string) =>
+    request<{ deleted: boolean }>(`/agents/${id}`, { method: "DELETE" }),
 };
 
 // --- WebSocket Status ---

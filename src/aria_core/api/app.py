@@ -237,6 +237,60 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
             raise HTTPException(status_code=404, detail="Approval not found")
         return result
 
+    @app.post("/api/v1/approvals/{approval_id}/approve")
+    async def approve_endpoint(
+        approval_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.approvals import approve_approval
+        return await approve_approval(approval_id, user)
+
+    @app.post("/api/v1/approvals/{approval_id}/reject")
+    async def reject_endpoint(
+        approval_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.approvals import reject_approval
+        return await reject_approval(approval_id, user)
+
+    # -----------------------------------------------------------------------
+    # Agents
+    # -----------------------------------------------------------------------
+
+    @app.get("/api/v1/agents")
+    async def list_agents_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> list:
+        from aria_core.api.routes.agents import list_agents
+        return await list_agents(user)
+
+    @app.post("/api/v1/agents")
+    async def register_agent_endpoint(
+        body: dict,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.agents import register_agent
+        return await register_agent(body, user)
+
+    @app.get("/api/v1/agents/{agent_id}")
+    async def get_agent_endpoint(
+        agent_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.agents import get_agent
+        result = await get_agent(agent_id, user)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        return result
+
+    @app.delete("/api/v1/agents/{agent_id}")
+    async def delete_agent_endpoint(
+        agent_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.agents import delete_agent
+        return await delete_agent(agent_id, user)
+
     # -----------------------------------------------------------------------
     # Events
     # -----------------------------------------------------------------------

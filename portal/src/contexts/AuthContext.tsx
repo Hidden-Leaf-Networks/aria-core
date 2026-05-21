@@ -18,9 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = useCallback((newToken: string) => {
-    localStorage.setItem("aria_token", newToken);
-    setToken(newToken);
-    setAuthToken(newToken);
+    const clean = newToken.replace(/\s+/g, "");
+    localStorage.setItem("aria_token", clean);
+    setToken(clean);
+    setAuthToken(clean);
   }, []);
 
   const logout = useCallback(() => {

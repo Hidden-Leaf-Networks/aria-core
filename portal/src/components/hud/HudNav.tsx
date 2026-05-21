@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { clsx } from "clsx";
+import { useAuth } from "@/contexts/AuthContext";
 
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: "◆" },
@@ -8,9 +9,12 @@ const NAV_ITEMS = [
   { to: "/approvals", label: "Approvals", icon: "✓" },
   { to: "/events", label: "Events", icon: "◉" },
   { to: "/contexts", label: "Contexts", icon: "◫" },
+  { to: "/agents", label: "Agents", icon: "⬢" },
 ];
 
 export function HudNav() {
+  const { logout } = useAuth();
+
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -44,9 +48,15 @@ export function HudNav() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-white/[0.06]">
-        <div className="text-[10px] text-white/30 font-mono">
-          v0.3.0 — White-Label
+      <div className="px-4 py-4 border-t border-white/[0.06] space-y-3">
+        <button
+          onClick={logout}
+          className="hud-btn hud-btn--ghost w-full text-xs text-white/40 hover:text-hud-error"
+        >
+          ↩ Logout
+        </button>
+        <div className="text-[10px] text-white/30 font-mono text-center">
+          v1.0.0-rc1
         </div>
       </div>
     </div>

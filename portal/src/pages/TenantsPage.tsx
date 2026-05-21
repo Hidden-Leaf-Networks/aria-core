@@ -4,7 +4,7 @@ import { useApi } from "@/hooks/useApi";
 import { tenants, type Tenant, type TenantConfig } from "@/lib/api";
 
 export function TenantsPage() {
-  const { data: tenantList, refetch } = useApi(() => tenants.list(), []);
+  const { data: tenantList, error, refetch } = useApi(() => tenants.list(), []);
   const [selected, setSelected] = useState<Tenant | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
@@ -12,7 +12,7 @@ export function TenantsPage() {
     <div>
       <HudTopBar
         title="Tenants"
-        subtitle="Manage white-label tenant deployments"
+        subtitle={error ? `Error: ${error}` : "Manage white-label tenant deployments"}
         actions={
           <button className="hud-btn hud-btn--primary" onClick={() => setShowCreate(true)}>
             + New Tenant
