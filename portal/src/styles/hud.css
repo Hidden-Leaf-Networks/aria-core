@@ -2,151 +2,499 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   ARIA Axis Interface — HUD v2 Design Token System
+   Full production design system for the Config Portal
+   ============================================================ */
+
+/* --- Design Tokens --- */
 :root {
-  --hud-accent: #00ffaa;
-  --hud-accent2: #a855f7;
-  --hud-accent3: #00d4ff;
-  --hud-bg-darkest: #070a0f;
-  --hud-bg-dark: #0b1220;
-  --hud-bg-medium: #101a2e;
-  --hud-bg-light: #1a2540;
-  --hud-border: rgba(255, 255, 255, 0.06);
-  --hud-border-active: rgba(0, 255, 170, 0.3);
-  --hud-glass: rgba(16, 26, 46, 0.7);
+  /* Backgrounds */
+  --hud-bg: #050510;
+  --hud-bg2: #080818;
+  --hud-surface: rgba(15, 20, 35, 0.75);
+  --hud-surface2: rgba(20, 25, 45, 0.6);
+  --hud-surface-elevated: rgba(30, 35, 55, 0.8);
+  --hud-surface-glass: rgba(12, 15, 30, 0.65);
+
+  /* Borders */
+  --hud-border: rgba(0, 255, 170, 0.18);
+  --hud-border-strong: rgba(0, 255, 170, 0.4);
+  --hud-border-subtle: rgba(255, 255, 255, 0.06);
+
+  /* Accents */
+  --hud-accent: #00FFAA;
+  --hud-accent-hover: #33FFBB;
+  --hud-accent-muted: rgba(0, 255, 170, 0.12);
+  --hud-accent-glow: rgba(0, 255, 170, 0.5);
+  --hud-accent2: #A855F7;
+  --hud-accent3: #00D4FF;
+
+  /* Gradients */
+  --hud-gradient-aurora: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.15) 0%,
+    rgba(0, 255, 170, 0.08) 35%,
+    rgba(0, 212, 255, 0.12) 65%,
+    rgba(168, 85, 247, 0.1) 100%
+  );
+
+  /* Shadows */
+  --hud-panel-shadow: 0 0 0 1px var(--hud-border),
+    0 4px 24px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --hud-glow-active: 0 0 0 1px var(--hud-border-strong),
+    0 0 20px var(--hud-accent-glow);
+
+  /* Semantic Colors */
+  --hud-danger: #FF4D6A;
+  --hud-warning: #FFB800;
+  --hud-ok: #00FF88;
+  --hud-info: #00B4FF;
+
+  /* Typography */
+  --hud-font-sans: 'Inter', system-ui, sans-serif;
+  --hud-font-mono: 'JetBrains Mono', monospace;
+
+  /* Timing */
+  --hud-transition: 200ms ease;
+  --hud-transition-slow: 350ms ease;
 }
 
-/* Glass panel */
+/* --- Base / Shell --- */
+body {
+  background: var(--hud-bg);
+  color: rgba(255, 255, 255, 0.87);
+  font-family: var(--hud-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hud-shell {
+  min-height: 100vh;
+  background:
+    var(--hud-gradient-aurora),
+    radial-gradient(ellipse at 20% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 255, 170, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+    var(--hud-bg);
+}
+
+/* --- Glassmorphism Panels --- */
 .hud-panel {
-  @apply rounded-lg border border-white/[0.06] p-4;
-  background: var(--hud-glass);
-  backdrop-filter: blur(12px);
+  @apply rounded-lg p-4;
+  background: var(--hud-surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--hud-border);
+  box-shadow: var(--hud-panel-shadow);
+  transition: border-color var(--hud-transition), box-shadow var(--hud-transition);
 }
 
 .hud-panel:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(0, 255, 170, 0.25);
 }
 
 .hud-panel--selected {
-  border-color: var(--hud-border-active);
-  box-shadow: 0 0 20px rgba(0, 255, 170, 0.08);
+  border-color: var(--hud-border-strong);
+  box-shadow: var(--hud-glow-active);
 }
 
-/* Buttons */
+.hud-panel--elevated {
+  background: var(--hud-surface-elevated);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--hud-panel-shadow), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.hud-panel--flat {
+  background: var(--hud-surface2);
+  backdrop-filter: none;
+  border: 1px solid var(--hud-border-subtle);
+  box-shadow: none;
+}
+
+/* --- Buttons --- */
 .hud-btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200;
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium;
+  transition: all var(--hud-transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-btn:active {
+  transform: scale(0.97);
 }
 
 .hud-btn--primary {
-  @apply bg-hud-primary text-white;
+  background: var(--hud-accent);
+  color: var(--hud-bg);
+  font-weight: 600;
 }
 
 .hud-btn--primary:hover {
-  @apply bg-hud-primary-light;
-  box-shadow: 0 0 20px rgba(0, 191, 165, 0.3);
+  background: var(--hud-accent-hover);
+  box-shadow: 0 0 24px var(--hud-accent-glow), 0 0 0 1px var(--hud-accent);
+}
+
+.hud-btn--primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .hud-btn--secondary {
-  @apply border border-white/10 bg-white/5 text-white/80;
+  background: var(--hud-accent-muted);
+  color: var(--hud-accent);
+  border: 1px solid var(--hud-border);
 }
 
 .hud-btn--secondary:hover {
-  @apply bg-white/10 text-white;
+  background: rgba(0, 255, 170, 0.18);
+  border-color: var(--hud-border-strong);
+  box-shadow: 0 0 16px rgba(0, 255, 170, 0.15);
+}
+
+.hud-btn--secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .hud-btn--ghost {
-  @apply bg-transparent text-white/60;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .hud-btn--ghost:hover {
-  @apply bg-white/5 text-white/80;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .hud-btn--danger {
-  @apply bg-hud-error/20 text-hud-error;
+  background: rgba(255, 77, 106, 0.15);
+  color: var(--hud-danger);
+  border: 1px solid rgba(255, 77, 106, 0.2);
 }
 
 .hud-btn--danger:hover {
-  @apply bg-hud-error/30;
+  background: rgba(255, 77, 106, 0.25);
+  border-color: rgba(255, 77, 106, 0.4);
+  box-shadow: 0 0 16px rgba(255, 77, 106, 0.2);
 }
 
-/* Status pills */
+.hud-btn--icon {
+  @apply p-2;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+}
+
+.hud-btn--icon:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--hud-accent);
+}
+
+/* --- Status Pills --- */
 .hud-pill {
-  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  transition: all var(--hud-transition);
 }
 
-.hud-pill--active {
-  @apply bg-hud-success/20 text-hud-success;
+.hud-pill--active,
+.hud-pill--ok {
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--hud-ok);
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .hud-pill--inactive {
-  @apply bg-white/10 text-white/50;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hud-pill--warning {
-  @apply bg-hud-warning/20 text-hud-warning;
+  background: rgba(255, 184, 0, 0.12);
+  color: var(--hud-warning);
+  border: 1px solid rgba(255, 184, 0, 0.2);
 }
 
-.hud-pill--error {
-  @apply bg-hud-error/20 text-hud-error;
+.hud-pill--error,
+.hud-pill--danger {
+  background: rgba(255, 77, 106, 0.12);
+  color: var(--hud-danger);
+  border: 1px solid rgba(255, 77, 106, 0.2);
 }
 
 .hud-pill--info {
-  @apply bg-hud-info/20 text-hud-info;
+  background: rgba(0, 180, 255, 0.12);
+  color: var(--hud-info);
+  border: 1px solid rgba(0, 180, 255, 0.2);
 }
 
-/* Nav items */
+.hud-pill--accent {
+  background: var(--hud-accent-muted);
+  color: var(--hud-accent);
+  border: 1px solid var(--hud-border);
+}
+
+.hud-pill--accent2 {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--hud-accent2);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+/* Pill dot indicator */
+.hud-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* --- Navigation --- */
 .hud-nav-item {
-  @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/60 transition-all duration-200;
+  @apply flex items-center gap-3 px-3 py-2.5 text-sm;
+  color: rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: all var(--hud-transition);
+  cursor: pointer;
 }
 
 .hud-nav-item:hover {
-  @apply bg-white/5 text-white/80;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+  border-left-color: rgba(0, 255, 170, 0.2);
 }
 
 .hud-nav-item--active {
-  @apply bg-white/10 text-white;
-  border-left: 2px solid var(--hud-accent);
+  background: var(--hud-accent-muted);
+  color: #fff;
+  border-left-color: var(--hud-accent);
+  box-shadow: inset 0 0 20px rgba(0, 255, 170, 0.04);
 }
 
-/* Inputs */
+.hud-nav-item--active:hover {
+  background: rgba(0, 255, 170, 0.15);
+  border-left-color: var(--hud-accent);
+}
+
+.hud-nav-item-icon {
+  @apply text-lg;
+  width: 20px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.hud-nav-item--active .hud-nav-item-icon {
+  color: var(--hud-accent);
+  opacity: 1;
+}
+
+/* --- Inputs --- */
 .hud-input {
-  @apply w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition-all duration-200;
+  @apply w-full rounded-md px-3 py-2 text-sm outline-none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hud-border-subtle);
+  color: rgba(255, 255, 255, 0.9);
+  transition: all var(--hud-transition);
+  font-family: var(--hud-font-sans);
+}
+
+.hud-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.hud-input:hover {
+  border-color: rgba(0, 255, 170, 0.15);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .hud-input:focus {
-  @apply border-hud-primary/50 bg-white/[0.07];
-  box-shadow: 0 0 0 2px rgba(0, 191, 165, 0.1);
+  border-color: var(--hud-border-strong);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px var(--hud-accent-muted), 0 0 12px rgba(0, 255, 170, 0.1);
 }
 
-/* Select */
+.hud-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hud-input--error {
+  border-color: rgba(255, 77, 106, 0.4);
+}
+
+.hud-input--error:focus {
+  border-color: var(--hud-danger);
+  box-shadow: 0 0 0 3px rgba(255, 77, 106, 0.12), 0 0 12px rgba(255, 77, 106, 0.1);
+}
+
+/* Textarea */
+.hud-textarea {
+  @apply hud-input;
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* --- Select --- */
 .hud-select {
-  @apply hud-input appearance-none;
+  @apply hud-input;
+  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  padding-right: 2rem;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
 }
 
-/* Toggle */
+/* --- Toggle Switch --- */
 .hud-toggle {
-  @apply relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-white/20 transition-colors duration-200;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--hud-border-subtle);
+  transition: background var(--hud-transition-slow), border-color var(--hud-transition-slow), box-shadow var(--hud-transition-slow);
 }
 
 .hud-toggle[data-state="checked"] {
-  @apply bg-hud-primary;
+  background: rgba(0, 255, 170, 0.25);
+  border-color: var(--hud-border-strong);
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.2);
 }
 
 .hud-toggle-thumb {
-  @apply pointer-events-none block h-4 w-4 translate-x-0 rounded-full bg-white shadow-lg transition-transform duration-200;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transform: translateX(2px);
+  transition: transform var(--hud-transition-slow), background var(--hud-transition-slow), box-shadow var(--hud-transition-slow);
+  pointer-events: none;
 }
 
 .hud-toggle[data-state="checked"] .hud-toggle-thumb {
-  @apply translate-x-4;
+  transform: translateX(20px);
+  background: var(--hud-accent);
+  box-shadow: 0 0 8px var(--hud-accent-glow), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Scrollbar */
+/* --- Tables --- */
+.hud-table {
+  @apply w-full text-sm;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.hud-table th {
+  @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider;
+  color: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid var(--hud-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.hud-table td {
+  @apply px-4 py-3;
+  border-bottom: 1px solid var(--hud-border-subtle);
+  transition: background var(--hud-transition);
+}
+
+.hud-table tr:hover td {
+  background: rgba(0, 255, 170, 0.03);
+}
+
+.hud-table tr:last-child td {
+  border-bottom: none;
+}
+
+.hud-table--bordered {
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* --- Metric Cards --- */
+.hud-metric {
+  @apply flex flex-col gap-1;
+  position: relative;
+}
+
+.hud-metric-label {
+  @apply text-xs uppercase tracking-wider;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+}
+
+.hud-metric-value {
+  @apply text-xl font-semibold tabular-nums;
+  color: #fff;
+}
+
+.hud-metric-card {
+  @apply rounded-lg p-4;
+  background: var(--hud-surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--hud-border);
+  box-shadow: var(--hud-panel-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--hud-accent), var(--hud-accent3), var(--hud-accent2));
+  opacity: 0.6;
+}
+
+.hud-metric-card:hover::before {
+  opacity: 1;
+}
+
+.hud-metric-card--accent {
+  border-color: rgba(0, 255, 170, 0.25);
+}
+
+.hud-metric-card--accent::before {
+  background: var(--hud-accent);
+}
+
+.hud-metric-card--accent2 {
+  border-color: rgba(168, 85, 247, 0.25);
+}
+
+.hud-metric-card--accent2::before {
+  background: var(--hud-accent2);
+}
+
+.hud-metric-card--accent3 {
+  border-color: rgba(0, 212, 255, 0.25);
+}
+
+.hud-metric-card--accent3::before {
+  background: var(--hud-accent3);
+}
+
+/* --- Scrollbar --- */
 .hud-scroll::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .hud-scroll::-webkit-scrollbar-track {
@@ -154,45 +502,357 @@
 }
 
 .hud-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 255, 170, 0.15);
   border-radius: 3px;
 }
 
 .hud-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 255, 170, 0.3);
 }
 
-/* Metrics */
-.hud-metric {
-  @apply flex flex-col gap-0.5;
+.hud-scroll::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
-.hud-metric-label {
-  @apply text-xs text-white/50 uppercase tracking-wider;
+/* Firefox scrollbar */
+.hud-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 170, 0.15) transparent;
 }
 
-.hud-metric-value {
-  @apply text-xl font-semibold tabular-nums;
-}
-
-/* Skeleton loading */
+/* --- Skeleton Loading --- */
 .hud-skeleton {
-  @apply animate-pulse rounded bg-white/10;
+  @apply rounded;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(255, 255, 255, 0.04) 80%
+  );
+  background-size: 200% 100%;
+  animation: hud-skeleton-shimmer 1.8s ease-in-out infinite;
 }
 
-/* Table */
-.hud-table {
-  @apply w-full text-sm;
+@keyframes hud-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-.hud-table th {
-  @apply px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-white/40 border-b border-white/5;
+.hud-skeleton--text {
+  height: 14px;
+  width: 60%;
 }
 
-.hud-table td {
-  @apply px-4 py-3 border-b border-white/5;
+.hud-skeleton--title {
+  height: 20px;
+  width: 40%;
 }
 
-.hud-table tr:hover td {
-  @apply bg-white/[0.02];
+.hud-skeleton--avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.hud-skeleton--card {
+  height: 120px;
+  width: 100%;
+}
+
+/* --- Modal / Overlay --- */
+.hud-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 3, 12, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: hud-overlay-in 200ms ease-out;
+}
+
+@keyframes hud-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hud-modal {
+  background: var(--hud-surface-elevated);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--hud-border);
+  border-radius: 12px;
+  box-shadow: var(--hud-panel-shadow), 0 24px 64px rgba(0, 0, 0, 0.5);
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: hud-modal-in 250ms ease-out;
+}
+
+@keyframes hud-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hud-modal-header {
+  @apply flex items-center justify-between px-6 py-4;
+  border-bottom: 1px solid var(--hud-border-subtle);
+}
+
+.hud-modal-title {
+  @apply text-lg font-semibold;
+  color: #fff;
+}
+
+.hud-modal-body {
+  @apply px-6 py-5;
+}
+
+.hud-modal-footer {
+  @apply flex items-center justify-end gap-3 px-6 py-4;
+  border-top: 1px solid var(--hud-border-subtle);
+}
+
+/* --- Dividers --- */
+.hud-divider {
+  border: none;
+  height: 1px;
+  background: var(--hud-border-subtle);
+  margin: 0;
+}
+
+.hud-divider--accent {
+  background: linear-gradient(90deg, transparent, var(--hud-border), transparent);
+}
+
+/* --- Badges / Tags --- */
+.hud-badge {
+  @apply inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--hud-border-subtle);
+}
+
+.hud-badge--accent {
+  background: var(--hud-accent-muted);
+  color: var(--hud-accent);
+  border-color: var(--hud-border);
+}
+
+/* --- Tooltip --- */
+.hud-tooltip {
+  @apply rounded-md px-2.5 py-1.5 text-xs font-medium;
+  background: var(--hud-surface-elevated);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--hud-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+/* --- Neon Glow Effects --- */
+.hud-glow {
+  box-shadow: 0 0 20px var(--hud-accent-glow);
+}
+
+.hud-glow--subtle {
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.15);
+}
+
+.hud-glow--purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+.hud-glow--cyan {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.hud-glow--danger {
+  box-shadow: 0 0 20px rgba(255, 77, 106, 0.3);
+}
+
+/* Text glow */
+.hud-text-glow {
+  text-shadow: 0 0 12px var(--hud-accent-glow);
+}
+
+/* Neon border pulse on focus */
+@keyframes hud-border-pulse {
+  0%, 100% {
+    border-color: var(--hud-border);
+  }
+  50% {
+    border-color: var(--hud-border-strong);
+  }
+}
+
+.hud-border-pulse {
+  animation: hud-border-pulse 2s ease-in-out infinite;
+}
+
+/* --- Sidebar --- */
+.hud-sidebar {
+  background: var(--hud-bg2);
+  border-right: 1px solid var(--hud-border-subtle);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* --- Header Bar --- */
+.hud-header {
+  @apply flex items-center justify-between px-6 py-3;
+  background: var(--hud-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--hud-border-subtle);
+}
+
+/* --- Code / Monospace --- */
+.hud-code {
+  font-family: var(--hud-font-mono);
+  @apply rounded px-1.5 py-0.5 text-xs;
+  background: rgba(0, 255, 170, 0.08);
+  color: var(--hud-accent);
+  border: 1px solid rgba(0, 255, 170, 0.12);
+}
+
+/* --- Label --- */
+.hud-label {
+  @apply block text-xs font-medium uppercase tracking-wider;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+}
+
+/* --- Fieldset Group --- */
+.hud-fieldset {
+  @apply flex flex-col gap-4;
+}
+
+.hud-fieldset-title {
+  @apply text-sm font-semibold;
+  color: var(--hud-accent);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hud-border-subtle);
+}
+
+/* --- Card Grid --- */
+.hud-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.hud-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.hud-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.hud-grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* --- Fade-in Animation --- */
+@keyframes hud-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hud-fade-in {
+  animation: hud-fade-in 300ms ease-out forwards;
+}
+
+/* Staggered children */
+.hud-stagger > * {
+  opacity: 0;
+  animation: hud-fade-in 300ms ease-out forwards;
+}
+
+.hud-stagger > *:nth-child(1) { animation-delay: 50ms; }
+.hud-stagger > *:nth-child(2) { animation-delay: 100ms; }
+.hud-stagger > *:nth-child(3) { animation-delay: 150ms; }
+.hud-stagger > *:nth-child(4) { animation-delay: 200ms; }
+.hud-stagger > *:nth-child(5) { animation-delay: 250ms; }
+.hud-stagger > *:nth-child(6) { animation-delay: 300ms; }
+
+/* --- Scan Line Effect (optional ambient) --- */
+@keyframes hud-scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.hud-scanline::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--hud-accent-glow), transparent);
+  opacity: 0.3;
+  animation: hud-scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- Utility: Accent text colors --- */
+.hud-text-accent {
+  color: var(--hud-accent);
+}
+
+.hud-text-accent2 {
+  color: var(--hud-accent2);
+}
+
+.hud-text-accent3 {
+  color: var(--hud-accent3);
+}
+
+.hud-text-danger {
+  color: var(--hud-danger);
+}
+
+.hud-text-warning {
+  color: var(--hud-warning);
+}
+
+.hud-text-ok {
+  color: var(--hud-ok);
+}
+
+.hud-text-info {
+  color: var(--hud-info);
+}
+
+.hud-text-muted {
+  color: rgba(255, 255, 255, 0.45);
 }
