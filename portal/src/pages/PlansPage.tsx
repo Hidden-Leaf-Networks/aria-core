@@ -170,6 +170,56 @@ const PLAN_TEMPLATES: { label: string; icon: string; name: string; description: 
       { name: "Send Welcome Email", skill_name: "send_email", description: "Notify customer with credentials", dependencies: [2] },
     ],
   },
+  {
+    label: "Web Scraping Pipeline", icon: "🕷️",
+    name: "Web Scraping Pipeline",
+    description: "Scrape, extract, validate, and store structured data from websites",
+    actions: [
+      { name: "Discover URLs", skill_name: "url_discover", description: "Crawl sitemap and discover target URLs", dependencies: [] },
+      { name: "Scrape Pages", skill_name: "web_scrape", description: "Fetch and render target pages", dependencies: [0] },
+      { name: "Extract Data", skill_name: "data_extract", description: "Parse HTML and extract structured fields", dependencies: [1] },
+      { name: "Validate Schema", skill_name: "validate", description: "Validate extracted data against target schema", dependencies: [2] },
+      { name: "Store Results", skill_name: "data_store", description: "Persist validated data to warehouse", dependencies: [3] },
+    ],
+  },
+  {
+    label: "Multi-Channel Outreach", icon: "📡",
+    name: "Multi-Channel Outreach Campaign",
+    description: "Coordinated outreach across email, LinkedIn, X, and Slack",
+    actions: [
+      { name: "Build Contact List", skill_name: "contact_build", description: "Compile and deduplicate target contacts", dependencies: [] },
+      { name: "Draft Messages", skill_name: "llm_generate", description: "Generate personalized outreach messages per channel", dependencies: [0] },
+      { name: "Send Email Wave", skill_name: "send_email", description: "Send personalized email campaign", dependencies: [1] },
+      { name: "Post to X", skill_name: "x_post", description: "Publish outreach thread on X", dependencies: [1] },
+      { name: "Send LinkedIn DMs", skill_name: "linkedin_dm", description: "Send personalized LinkedIn messages", dependencies: [1] },
+      { name: "Track Responses", skill_name: "response_track", description: "Monitor and aggregate responses across channels", dependencies: [2, 3, 4] },
+    ],
+  },
+  {
+    label: "Security Audit", icon: "🛡️",
+    name: "Security Audit Pipeline",
+    description: "Comprehensive security scan, vulnerability assessment, and remediation report",
+    actions: [
+      { name: "Port Scan", skill_name: "port_scan", description: "Scan target infrastructure for open ports", dependencies: [] },
+      { name: "Dependency Audit", skill_name: "dep_audit", description: "Check dependencies for known vulnerabilities", dependencies: [0] },
+      { name: "Code Analysis", skill_name: "code_scan", description: "Static analysis for security anti-patterns", dependencies: [1] },
+      { name: "Config Review", skill_name: "config_audit", description: "Review infrastructure and app configuration", dependencies: [2] },
+      { name: "Generate Report", skill_name: "generate_report", description: "Compile findings into remediation report", dependencies: [3] },
+    ],
+  },
+  {
+    label: "Agent Deployment", icon: "🤖",
+    name: "Agent Deployment Pipeline",
+    description: "Build, test, and deploy an AI agent to production with monitoring",
+    actions: [
+      { name: "Validate Config", skill_name: "config_validate", description: "Validate agent configuration and skills", dependencies: [] },
+      { name: "Run Tests", skill_name: "pytest", description: "Execute unit and integration test suite", dependencies: [0] },
+      { name: "Build Container", skill_name: "docker_build", description: "Build agent container image", dependencies: [1] },
+      { name: "Deploy to Staging", skill_name: "helm_upgrade", description: "Deploy agent to staging environment", dependencies: [2] },
+      { name: "Run Smoke Tests", skill_name: "smoke_test", description: "Verify agent health in staging", dependencies: [3] },
+      { name: "Promote to Production", skill_name: "helm_upgrade_prod", description: "Promote agent to production cluster", dependencies: [4] },
+    ],
+  },
 ];
 
 function PlanWizard({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }) {
