@@ -397,6 +397,18 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
         return await seed_defaults(user)
 
     # -----------------------------------------------------------------------
+    # Execution
+    # -----------------------------------------------------------------------
+
+    @app.post("/api/v1/execute")
+    async def execute_endpoint(
+        body: dict,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.execute import execute_agent
+        return await execute_agent(body, user)
+
+    # -----------------------------------------------------------------------
     # Events
     # -----------------------------------------------------------------------
 

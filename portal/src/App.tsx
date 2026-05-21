@@ -9,6 +9,7 @@ import { EventsPage } from "@/pages/EventsPage";
 import { ContextsPage } from "@/pages/ContextsPage";
 import { AgentsPage } from "@/pages/AgentsPage";
 import { WorkflowEditorPage } from "@/pages/WorkflowEditorPage";
+import { ProvidersPage } from "@/pages/ProvidersPage";
 import { MarketplacePage } from "@/pages/MarketplacePage";
 import { LoginPage } from "@/pages/LoginPage";
 
@@ -29,6 +30,7 @@ function AppLayout() {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/contexts" element={<ContextsPage />} />
         <Route path="/agents" element={<AgentsPage />} />
+        <Route path="/providers" element={<ProvidersPage />} />
         <Route path="/workflow" element={<WorkflowEditorPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

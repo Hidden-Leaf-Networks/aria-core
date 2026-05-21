@@ -239,6 +239,49 @@ export const agents = {
     request<{ deleted: boolean }>(`/agents/${id}`, { method: "DELETE" }),
 };
 
+// --- Providers ---
+
+export interface ProviderInfo {
+  provider: string;
+  enabled: boolean;
+  default_model: string | null;
+  has_key: boolean;
+  key_preview: string | null;
+  base_url: string | null;
+}
+
+export interface ModelInfo {
+  id: string;
+  name: string;
+  provider: string;
+  context_window: number;
+  max_output: number;
+  supports_streaming: boolean;
+  supports_tools: boolean;
+  supports_vision: boolean;
+  supports_extended_thinking: boolean;
+  input_price_per_1m: number;
+  output_price_per_1m: number;
+  tags: string[];
+}
+
+export const providers = {
+  list: () => request<ProviderInfo[]>("/providers"),
+  configure: (data: { provider: string; api_key: string; default_model?: string; base_url?: string }) =>
+    request<{ provider: string; configured: boolean }>("/providers", { method: "POST", body: JSON.stringify(data) }),
+  remove: (provider: string) =>
+    request<{ removed: boolean }>(`/providers/${provider}`, { method: "DELETE" }),
+  models: (params?: { provider?: string; available_only?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params?.provider) qs.set("provider", params.provider);
+    if (params?.available_only) qs.set("available_only", "true");
+    return request<ModelInfo[]>(`/providers/models${qs.toString() ? `?${qs}` : ""}`);
+  },
+  status: () => request<{ configured_count: number; available_models: number; providers: any[]; model_ids: string[] }>("/providers/status"),
+  test: (provider: string) =>
+    request<{ provider: string; status: string; error?: string }>(`/providers/${provider}/test`, { method: "POST" }),
+};
+
 // --- WebSocket Status ---
 
 export const ws = {
