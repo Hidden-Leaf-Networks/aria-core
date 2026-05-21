@@ -14,6 +14,11 @@ from aria_core.eval.framework import (
     EvalScorer,
     EvalSuite,
 )
+from aria_core.eval.production import (
+    ExecutionTrace,
+    ProductionEvaluator,
+    QualityMetrics,
+)
 
 __all__ = [
     "EvalCase",
@@ -22,6 +27,9 @@ __all__ = [
     "EvalRunner",
     "EvalScorer",
     "EvalSuite",
+    "ExecutionTrace",
+    "ProductionEvaluator",
+    "QualityMetrics",
     "BUILT_IN_SMOKE_SUITE",
     "BUILT_IN_SAFETY_SUITE",
 ]
