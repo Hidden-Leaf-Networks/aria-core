@@ -18,3 +18,29 @@ async def get_all_usage(user: AuthUser, meter: Any) -> list[dict[str, Any]]:
     require_role(user, Role.ADMIN)
     reports = meter.get_all_reports()
     return [r.to_dict() for r in reports]
+
+
+async def get_pricing_tiers() -> list[dict[str, Any]]:
+    """Get all pricing tiers (public endpoint)."""
+    from aria_core.billing.pricing import PricingCalculator
+    return PricingCalculator().get_tiers()
+
+
+async def calculate_pricing(
+    api_calls: int = 0,
+    events: int = 0,
+    agent_runs: int = 0,
+    agents: int = 0,
+    tenants: int = 1,
+    storage_gb: float = 0,
+) -> dict[str, Any]:
+    """Calculate pricing based on projected usage (public endpoint)."""
+    from aria_core.billing.pricing import PricingCalculator
+    return PricingCalculator().recommend_tier(
+        api_calls=api_calls,
+        events=events,
+        agent_runs=agent_runs,
+        agents=agents,
+        tenants=tenants,
+        storage_gb=storage_gb,
+    )

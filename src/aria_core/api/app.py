@@ -292,6 +292,60 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
         return await delete_agent(agent_id, user)
 
     # -----------------------------------------------------------------------
+    # Archetypes
+    # -----------------------------------------------------------------------
+
+    @app.get("/api/v1/archetypes")
+    async def list_archetypes_endpoint(
+        user: AuthUser = Depends(get_current_user),
+        category: Optional[str] = Query(None),
+    ) -> list:
+        from aria_core.api.routes.archetypes import list_archetypes
+        return await list_archetypes(user, category=category)
+
+    @app.get("/api/v1/archetypes/{archetype_id}")
+    async def get_archetype_endpoint(
+        archetype_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.archetypes import get_archetype
+        result = await get_archetype(archetype_id, user)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Archetype not found")
+        return result
+
+    @app.post("/api/v1/archetypes")
+    async def create_archetype_endpoint(
+        body: dict,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.archetypes import create_archetype
+        return await create_archetype(body, user)
+
+    @app.delete("/api/v1/archetypes/{archetype_id}")
+    async def delete_archetype_endpoint(
+        archetype_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.archetypes import delete_archetype
+        return await delete_archetype(archetype_id, user)
+
+    @app.post("/api/v1/archetypes/{archetype_id}/deploy")
+    async def deploy_archetype_endpoint(
+        archetype_id: UUID,
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.archetypes import deploy_archetype
+        return await deploy_archetype(archetype_id, user)
+
+    @app.post("/api/v1/archetypes/seed")
+    async def seed_archetypes_endpoint(
+        user: AuthUser = Depends(get_current_user),
+    ) -> dict:
+        from aria_core.api.routes.archetypes import seed_defaults
+        return await seed_defaults(user)
+
+    # -----------------------------------------------------------------------
     # Events
     # -----------------------------------------------------------------------
 
@@ -463,5 +517,29 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
         """Get usage reports for all tenants. Admin only."""
         from aria_core.api.routes.billing import get_all_usage
         return await get_all_usage(user, usage_meter)
+
+    # -----------------------------------------------------------------------
+    # Pricing (public — no auth for tiers, calculator)
+    # -----------------------------------------------------------------------
+
+    @app.get("/api/v1/pricing/tiers")
+    async def pricing_tiers_endpoint() -> list:
+        from aria_core.api.routes.billing import get_pricing_tiers
+        return await get_pricing_tiers()
+
+    @app.get("/api/v1/pricing/calculate")
+    async def pricing_calculate_endpoint(
+        api_calls: int = Query(0, ge=0),
+        events: int = Query(0, ge=0),
+        agent_runs: int = Query(0, ge=0),
+        agents: int = Query(0, ge=0),
+        tenants: int = Query(1, ge=1),
+        storage_gb: float = Query(0, ge=0),
+    ) -> dict:
+        from aria_core.api.routes.billing import calculate_pricing
+        return await calculate_pricing(
+            api_calls=api_calls, events=events, agent_runs=agent_runs,
+            agents=agents, tenants=tenants, storage_gb=storage_gb,
+        )
 
     return app
