@@ -14,12 +14,20 @@ import { WorkflowEditorPage } from "@/pages/WorkflowEditorPage";
 import { ProvidersPage } from "@/pages/ProvidersPage";
 import { MarketplacePage } from "@/pages/MarketplacePage";
 import { LoginPage } from "@/pages/LoginPage";
+import { SignupPage } from "@/pages/SignupPage";
 import { OnboardingPage } from "@/pages/OnboardingPage";
 import { providers } from "@/lib/api";
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <LoginPage />;
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    );
+  }
   return <>{children}</>;
 }
 

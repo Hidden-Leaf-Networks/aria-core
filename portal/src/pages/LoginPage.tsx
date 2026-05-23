@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginPage() {
@@ -112,6 +113,16 @@ export function LoginPage() {
           </button>
           <p className="text-[10px] text-center font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>
             Generate a token via the Aria Core API or CLI
+          </p>
+          <p className="text-[10px] text-center font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/signup"
+              className="underline transition-colors"
+              style={{ color: "rgba(0, 255, 170, 0.6)" }}
+            >
+              Sign up
+            </Link>
           </p>
         </form>
 

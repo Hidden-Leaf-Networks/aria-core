@@ -18,7 +18,7 @@ from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Optional
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -28,6 +28,7 @@ from aria_core.api.config import APIConfig
 from aria_core.api.deps import get_guard, get_resolver, set_provider
 from aria_core.api.middleware import create_auth_dependency
 from aria_core.api.schemas import CreatePlanRequest, CreateTenantRequest, UpdateTenantConfigRequest
+from aria_core.api.routes.register import RegisterRequest
 from aria_core.api.security import SECURITY_HEADERS, RateLimiter
 from aria_core.billing.meter import UsageMeter
 from aria_core.api.ws import WebSocketManager
@@ -181,6 +182,30 @@ def create_app(config: Optional[APIConfig] = None) -> FastAPI:
     async def ready_endpoint() -> dict:
         from aria_core.api.routes.health import ready
         return await ready()
+
+    # -----------------------------------------------------------------------
+    # Registration (public — no auth)
+    # -----------------------------------------------------------------------
+
+    @app.post("/api/v1/register")
+    async def register_endpoint(
+        body: RegisterRequest,
+        request: Request,
+    ) -> JSONResponse:
+        from aria_core.api.routes.register import register_user
+
+        # Extract client IP
+        client_ip = request.client.host if request.client else "unknown"
+
+        result = await register_user(
+            data=body.model_dump(),
+            client_ip=client_ip,
+            jwt_secret=config.jwt_secret,
+            jwt_algorithm=config.jwt_algorithm,
+        )
+
+        status = result.pop("_status", 200)
+        return JSONResponse(content=result, status_code=status)
 
     # -----------------------------------------------------------------------
     # Tenants (admin only)
